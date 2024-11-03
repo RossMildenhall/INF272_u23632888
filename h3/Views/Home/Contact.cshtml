@@ -1,0 +1,80 @@
+﻿@model h3.Models.ReportViewModel
+@{
+    ViewBag.Title = "Library Reports";
+}
+
+<div class="container mt-4">
+    <h2>Library Reports</h2>
+
+    <div class="row mt-4">
+        <!-- Summary Cards -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Students</h5>
+                    <p class="card-text display-4">@Model.students.Count()</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Books</h5>
+                    <p class="card-text display-4">@Model.books.Count()</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Active Borrows</h5>
+                    <p class="card-text display-4">@Model.borrows.Count()</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Borrows</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Book</th>
+                                <th>Taken Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var borrow in Model.borrows.Take(5))
+                            {
+                                <tr>
+                                    <td>@borrow.students.name @borrow.students.surname</td>
+                                    <td>@borrow.books.name</td>
+                                    <td>@borrow.takenDate</td>
+                                    <td>
+                                        @if (borrow.broughtDate.HasValue)
+                                        {
+                                            <span class="badge bg-success">Returned</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">Active</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

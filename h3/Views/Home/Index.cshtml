@@ -1,0 +1,202 @@
+﻿@model h3.Models.CombinedViewModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<main>
+    <section class="row" aria-labelledby="aspnetTitle">
+        <h1 id="title">ASP.NET</h1>
+        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
+        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
+    </section>
+</main>
+
+<div class="row">
+    <div class="col-md-5">
+        <h2>Students</h2>
+
+        <p>
+            <a href="#" class="create-link" data-url="@Url.Action("Create", "students")">Create New Student</a>
+        </p>
+
+        <table class="table" style="width:100%">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.students.FirstOrDefault().name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.students.FirstOrDefault().surname)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.students.FirstOrDefault().birthdate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.students.FirstOrDefault().gender)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.students.FirstOrDefault().@class)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.students.FirstOrDefault().point)
+                </th>
+                <th></th>
+            </tr>
+            @foreach (var item in Model.students)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.surname)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.birthdate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.gender)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.@class)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.point)
+                    </td>
+                    <td class="text-end">
+                        <a href="#" class="edit-link" data-url="@Url.Action("Edit", "students", new { id = item.studentId })">Edit</a>
+                        <a href="#" class="details-link" data-url="@Url.Action("Details", "students", new { id = item.studentId })">Details</a>
+                        <a href="#" class="delete-link" data-url="@Url.Action("Delete", "students", new { id = item.studentId })">Delete</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div class="col-md-2">
+    </div>
+    <div class="col-md-5">
+        <h2>Books</h2>
+
+        <p>
+            <a href="#" class="create-lookup-link" data-url="@Url.Action("Create", "books")">Create Book</a>
+        </p>
+
+        <table class="table" style="width:100%">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.books.FirstOrDefault().name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.books.FirstOrDefault().pagecount)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.books.FirstOrDefault().point)
+                </th>
+                <th>
+                    Author Name
+                </th>
+                <th>
+                    Type
+                </th>
+                <th>
+                    Status
+                </th>
+                <th></th>
+            </tr>
+            @foreach (var item in Model.books)
+            {
+                var isBookOut = Model.borrows.Any(b => b.bookId == item.bookId && !b.broughtDate.HasValue);
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pagecount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.point)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.authors.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.types.name)
+                    </td>
+                    <td>
+                        @if (isBookOut)
+                        {
+                            <span class="badge bg-warning">Out</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Available</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <a href="#" class="edit-link" data-url="@Url.Action("Edit", "books", new { id = item.bookId })">Edit</a>
+                        <a href="#" class="details-link" data-url="@Url.Action("Details", "books", new { id = item.bookId })">Details</a>
+                        <a href="#" class="delete-link" data-url="@Url.Action("Delete", "books", new { id = item.bookId })">Delete</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sample Async CRUD</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-content">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(function () {
+        // Function to handle Edit link click event in the Combined View and Details modal
+        $(".edit-link, .edit-link-in-modal").click(function (e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+
+            $.get(url, function (data) {
+                $("#modal-content").empty();
+                $("#modal-content").html(data);
+                $("#myModal").modal("show");
+            });
+        });
+
+        // Function to handle form submission within the modal
+        $("#modal-content").on("submit", "form", function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr("action");
+            var formData = form.serialize();
+
+            $.post(url, formData, function (data) {
+                $("#myModal").modal("hide");
+                location.reload();
+            });
+        });
+
+        // Function to handle other links (details, delete, create) within the modal
+        $(".details-link, .delete-link, .create-link, .create-lookup-link").click(function (e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+
+            $.get(url, function (data) {
+                $("#modal-content").empty();
+                $("#modal-content").html(data);
+                $("#myModal").modal("show");
+            });
+        });
+    });
+</script>
+
+
